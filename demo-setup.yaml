@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     path: gitops/ArgoCD-Applications/aggregate
-    repoURL: 'https://github.com/cmays20/OpenShift-GitLab-Operator-GitOps.git'
+    repoURL: 'https://github.com/cmays20/OpenShift-GitOps-Starter.git'
     targetRevision: HEAD
   syncPolicy:
     automated:

@@ -5,7 +5,7 @@ configMapGenerator:
   - name: git-config-helm
     namespace: openshift-gitops
     literals:
-      - GIT_REPO_URL=https://github.com/cmays20/OpenShift-GitLab-Operator-GitOps.git
+      - GIT_REPO_URL=https://github.com/cmays20/OpenShift-GitOps-Starter.git
       - GIT_REVISION=HEAD
 
 replacements:
