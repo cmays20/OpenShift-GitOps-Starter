@@ -1,0 +1,99 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "-4"
+  name: argocd-add-operator-health-checks-job
+spec:
+  template:
+    spec:
+      containers:
+        - image: registry.redhat.io/openshift4/ose-cli
+          command:
+            - /bin/bash
+            - -c
+            - |
+              #!/usr/bin/env bash
+              oc patch ArgoCD openshift-gitops -n openshift-gitops --type=merge --patch='{"spec":{"resourceHealthChecks":[{"check":"hs = {}\nhs.status = \"Progressing\"\nhs.message = \"\"\nif obj.status ~= nil then\n  if obj.status.health ~= nil then\n    if obj.status.sync.status == \"Synced\" then\n      hs.status = obj.status.health.status\n      if obj.status.health.message ~= nil then\n        hs.message = obj.status.health.message\n      end\n    end\n  end\nend\nreturn hs\n","group":"argoproj.io","kind":"Application"},{"check":"hs = {}; if obj.status ~= nil then local replicas = obj.status.replicas or 0; local readyReplicas = obj.status.readyReplicas or 0; local availableReplicas = obj.status.availableReplicas or 0; local desiredReplicas = obj.spec.replicas or 0; if availableReplicas == desiredReplicas and readyReplicas == desiredReplicas then hs.status = \"Healthy\"; hs.message = \"All replicas are available and ready\"; elseif replicas < desiredReplicas then hs.status = \"Progressing\"; hs.message = \"Waiting for replicas to be provisioned\"; else hs.status = \"Degraded\"; hs.message = \"Some replicas are not ready or available\"; end else hs.status = \"Unknown\"; hs.message = \"Missing status information\"; end; return hs;","group":"machine.openshift.io","kind":"MachineSet"}]}}'
+              exit $?
+          imagePullPolicy: Always
+          name: argocd-add-operator-health-checks-job
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
+      serviceAccountName: argocd-setup-sa
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "-4"
+  name: argocd-update-label-job
+spec:
+  template:
+    spec:
+      containers:
+        - image: registry.redhat.io/openshift4/ose-cli
+          command:
+            - /bin/bash
+            - -c
+            - |
+              #!/usr/bin/env bash
+              oc patch ArgoCD openshift-gitops -n openshift-gitops --type=merge --patch='{"spec":{"extraConfig":{"application.instanceLabelKey":"argocd.argoproj.io/instance"}}}'
+              exit $?
+          imagePullPolicy: Always
+          name: argocd-update-label-job
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
+      serviceAccountName: argocd-setup-sa
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "-4"
+  name: argocd-update-sync-delay-job
+spec:
+  template:
+    spec:
+      containers:
+        - image: registry.redhat.io/openshift4/ose-cli
+          command:
+            - /bin/bash
+            - -c
+            - |
+              #!/usr/bin/env bash
+              oc patch ArgoCD openshift-gitops -n openshift-gitops --type=merge --patch='{"spec":{"controller":{"env":[{"name": "ARGOCD_SYNC_WAVE_DELAY","value": "15"}]}}}'
+              exit $?
+          imagePullPolicy: Always
+          name: argocd-update-sync-delay-job
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
+      serviceAccountName: argocd-setup-sa
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "-4"
+  name: argocd-enable-kustomize-helm
+spec:
+  template:
+    spec:
+      containers:
+        - image: registry.redhat.io/openshift4/ose-cli
+          command:
+            - /bin/bash
+            - -c
+            - |
+              #!/usr/bin/env bash
+              oc patch ArgoCD openshift-gitops -n openshift-gitops --type=merge --patch='{"spec":{"kustomizeBuildOptions":"--enable-alpha-plugins --enable-exec --enable-helm"}}'
+              exit $?
+          imagePullPolicy: Always
+          name: argocd-update-sync-delay-job
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
+      serviceAccountName: argocd-setup-sa
+      terminationGracePeriodSeconds: 30

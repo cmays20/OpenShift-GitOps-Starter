@@ -1,0 +1,8 @@
+resources:
+  - ../../cert-manager
+  - ../../odf
+  - ../../redis-operator
+  - ../../keycloak
+  - ../../vault
+  - ../../vault-secrets-operator
+  - ../../gitlab

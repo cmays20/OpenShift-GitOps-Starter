@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: vault
+
+  project: default
+  sources:
+    - repoURL: https://helm.releases.hashicorp.com
+      chart: vault
+      targetRevision: 0.28.1
+      helm:
+        releaseName: vault
+        valueFiles:
+          - $values/gitops/ArgoCD-Applications/helm-charts/vault-values/vault-values.yaml
+    - repoURL: 'GITREPO'
+      targetRevision: REVISION
+      path: gitops/ArgoCD-Applications/helm-charts/vault-values
+      ref: values
+  ignoreDifferences:
+    - group: apps
+      kind: StatefulSet
+      jsonPointers:
+        - /spec/volumeClaimTemplates/0/apiVersion
+        - /spec/volumeClaimTemplates/0/kind
+        - /spec/volumeClaimTemplates/1/apiVersion
+        - /spec/volumeClaimTemplates/1/kind
+    - group: route.openshift.io
+      kind: Route
+      jsonPointers:
+        - /spec/host
+  syncPolicy:
+    automated:
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

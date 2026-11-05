@@ -1,0 +1,10 @@
+resources:
+  - argocd-permissions.yaml
+  - cert-manager.yaml
+  - cloud-native-pg.yaml
+  - keycloak.yaml
+  - vault-secrets-operator.yaml
+  - web-terminal.yaml
+  - oauth.yaml
+  - vault-init.yaml
+  - vault-seed-secrets.yaml
