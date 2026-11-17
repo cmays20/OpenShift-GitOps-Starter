@@ -9,10 +9,10 @@ metadata:
 spec:
   keycloakCRName: keycloak
   placeholders:
-    CMAYS_INITIAL_PASSWORD:
+    BOOTSTRAP_ADMIN_PASSWORD:
       secret:
         key: password
-        name: cmays-initial-password
+        name: bootstrap-admin-password
     OPENSHIFT_OAUTH_CLIENT_SECRET:
       secret:
         key: client-secret
@@ -326,16 +326,19 @@ spec:
       - name: cluster-admins
     realm: openshift
     sslRequired: external
+    # Generic bootstrap / break-glass admin. Personal accounts are managed
+    # outside GitOps. Password is permanent and lives in Vault at
+    # secret/keycloak/bootstrap-admin-password.
     users:
       - credentials:
-          - temporary: true
+          - temporary: false
             type: password
-            value: '${CMAYS_INITIAL_PASSWORD}'
-        email: cmays@outlook.com
+            value: '${BOOTSTRAP_ADMIN_PASSWORD}'
+        email: ocp-admin@example.com
         emailVerified: true
         enabled: true
-        firstName: Christopher
+        firstName: OpenShift
         groups:
           - /cluster-admins
-        lastName: Mays
-        username: cmays
+        lastName: Admin
+        username: ocp-admin
