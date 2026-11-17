@@ -1,3 +1,0 @@
-resources:
-  - argocd-odf-role.yaml
-  - argocd-odf-rolebinding.yaml
